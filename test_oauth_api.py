@@ -6,7 +6,7 @@ from rauth.service import OAuth1Service, OAuth1Session
 def authorize(path_to_keys):
     api_keys = json.load(open(path_to_keys,'rb'))
     KEY = api_keys['KEY']
-    SECRET = api_keys['KEY']
+    SECRET = api_keys['SECRET']
 
     goodreads = OAuth1Service(
         consumer_key=KEY,
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-k", "--path_to_keys", type='str',
+    parser.add_argument("-k", "--path_to_keys", type=str,
                         help="String path to key json", required=True)
 
     args = parser.parse_args()
