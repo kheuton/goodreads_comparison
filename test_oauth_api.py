@@ -30,3 +30,14 @@ def authorize(path_to_keys):
         accepted = raw_input('Have you authorized me? (y/n) ')
 
     session = goodreads.get_auth_session(request_token, request_token_secret)
+
+if __name__ == "__main__":
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-k", "--path_to_keys", type='str',
+                        help="String path to key json", required=True)
+
+    args = parser.parse_args()
+
+    authorize(args.path_to_keys)
