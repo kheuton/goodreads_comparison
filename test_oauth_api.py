@@ -31,6 +31,10 @@ def authorize(path_to_keys):
 
     session = goodreads.get_auth_session(request_token, request_token_secret)
 
+    response = session.get('https://www.goodreads.com/owned_books/user?format=xml')
+
+    import pdb;pdb.set_trace()
+
 if __name__ == "__main__":
 
     import argparse
