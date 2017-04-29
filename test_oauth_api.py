@@ -1,7 +1,11 @@
 import json
+import time
 
+from bs4 import BeautifulSoup
 from rauth.service import OAuth1Service, OAuth1Session
 
+# If you've read these you must be really wise
+OFFICIAL_BOOKS = ['Neuromancer', 'Infinite Jest']
 
 def authorize(path_to_keys):
     api_keys = json.load(open(path_to_keys,'rb'))
@@ -30,8 +34,29 @@ def authorize(path_to_keys):
         accepted = raw_input('Have you authorized me? (y/n) ')
 
     session = goodreads.get_auth_session(request_token, request_token_secret)
+    time.sleep(1)
 
-    response = session.get('https://www.goodreads.com/owned_books/user?format=xml')
+    # Grab the user id
+    user_xml = session.get('https://www.goodreads.com/api/auth_user')
+
+    user_id = BeautifulSoup(user_xml.content).find('user').get('id')
+
+    # Build reviewed book query
+
+    response = session.get('https://www.goodreads.com/review/list/'
+                           '{u:s}.xml?key=XOjn5TvF7yh0VUK0re8v4Q&v=2'.format(u=user_id))
+
+    parsed_html = BeautifulSoup(response.content)
+
+    title_tags = parsed_html.body.findAll('title')
+    titles = [tag.text for tag in title_tags]
+
+    score = 0
+    for book in OFFICIAL_BOOKS:
+        if book in titles:
+            score += 1
+
+    print("Your score is {s:.2f}%".format(s=float(score)/len(OFFICIAL_BOOKS)*100))
 
     import pdb;pdb.set_trace()
 
