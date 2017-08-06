@@ -7,8 +7,12 @@ from rauth.service import OAuth1Service, OAuth1Session
 # If you've read these you must be really wise
 OFFICIAL_BOOKS = ['Neuromancer', 'Infinite Jest']
 
+DEV_KEY = 'XOjn5TvF7yh0VUK0re8v4Q'
+API_VER = 2
+
+
 def authorize(path_to_keys):
-    api_keys = json.load(open(path_to_keys,'rb'))
+    api_keys = json.load(open(path_to_keys, 'rb'))
     KEY = api_keys['KEY']
     SECRET = api_keys['SECRET']
 
@@ -22,8 +26,9 @@ def authorize(path_to_keys):
         base_url='http://www.goodreads.com/'
     )
 
-    # head_auth=True is important here; this doesn't work with oauth2 for some reason
-    request_token, request_token_secret = goodreads.get_request_token(header_auth=True)
+    # head_auth=True is important here; this doesn't work with oauth2
+    request_token, request_token_secret = \
+        goodreads.get_request_token(header_auth=True)
 
     authorize_url = goodreads.get_authorize_url(request_token)
     print 'Visit this URL in your browser: ' + authorize_url
@@ -42,9 +47,10 @@ def authorize(path_to_keys):
     user_id = BeautifulSoup(user_xml.content, 'lxml').find('user').get('id')
 
     # Build reviewed book query
-
-    response = session.get('https://www.goodreads.com/review/list/'
-                           '{u:s}.xml?key=XOjn5TvF7yh0VUK0re8v4Q&v=2'.format(u=user_id))
+    review_query_struct = ('https://www.goodreads.com/review/list/'
+                           '{u:s}.xml?key={dk:s}&v={v:d}')
+    review_query = review_query_struct.format(u=user_id, dk=DEV_KEY, v=API_VER)
+    response = session.get(review_query)
 
     parsed_html = BeautifulSoup(response.content, 'lxml')
 
@@ -56,7 +62,8 @@ def authorize(path_to_keys):
         if book in titles:
             score += 1
 
-    print("Your score is {s:.2f}%".format(s=float(score)/len(OFFICIAL_BOOKS)*100))
+    score_display = float(score)/len(OFFICIAL_BOOKS)*100
+    print("Your score is {s:.2f}%".format(s=score_display))
 
 
 if __name__ == "__main__":
